@@ -415,7 +415,22 @@
                 `;
                 
                 uploadListContainer.appendChild(uploadCard);
-                uploadQueue.push({ file: file, card: uploadCard });
+                let queueItem = { id: fileId, file: file, card: uploadCard };
+                uploadQueue.push(queueItem);
+                
+                // Allow cancelling while waiting in queue
+                let cancelBtn = uploadCard.querySelector('.cancel-btn');
+                cancelBtn.onclick = () => {
+                    let idx = uploadQueue.findIndex(item => item.id === fileId);
+                    if (idx !== -1) {
+                        uploadQueue.splice(idx, 1); // Remove from queue logic
+                        let statusText = uploadCard.querySelector('.status-text');
+                        statusText.innerText = "Removed from queue";
+                        statusText.classList.replace('text-slate-400', 'text-red-400');
+                        cancelBtn.classList.add('hidden');
+                        setTimeout(() => { uploadCard.style.display = 'none'; }, 1500);
+                    }
+                };
             });
             
             processNextUpload();
@@ -581,13 +596,21 @@
                             <p class="text-xs text-slate-400 mt-0.5">${formatBytes(f.file_size)}</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1 flex-shrink-0">
-                        <button onclick="safeDownload(this, '${f.message_id}')" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 active:bg-slate-600 transition">
-                            <i class="fa-solid fa-arrow-down"></i>
+                    <div class="relative flex-shrink-0">
+                        <button onclick="toggleMenu(event, this)" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-white active:bg-slate-700 transition">
+                            <i class="fa-solid fa-ellipsis-vertical text-lg"></i>
                         </button>
-                        <button onclick="deleteFile('${f.key}', ${f.message_id})" class="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 transition">
-                            <i class="fa-solid fa-trash-can text-sm"></i>
-                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div data-active="false" class="dropdown-menu hidden absolute right-0 w-36 bg-slate-800 border border-slate-600 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] z-[100] transform scale-95 opacity-0 transition-all duration-200">
+                            <button onclick="safeDownload(this, '${f.message_id}'); closeAllMenus()" class="w-full text-left px-4 py-3 text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-3 transition rounded-t-xl">
+                                <i class="fa-solid fa-download text-blue-400 w-4"></i> Download
+                            </button>
+                            <div class="w-full h-px bg-slate-700"></div>
+                            <button onclick="deleteFile('${f.key}', ${f.message_id}); closeAllMenus()" class="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-3 transition rounded-b-xl">
+                                <i class="fa-solid fa-trash-can w-4"></i> Delete
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -675,6 +698,51 @@
                 filteredFiles.forEach(f => catList.innerHTML += generateFileCard(f));
             }
         }
+
+        // 3-Dot Menu Toggle Logic (Screen Boundary Optimized & Dynamic DOM Fix)
+        function toggleMenu(event, btnElement) {
+            event.stopPropagation(); 
+            
+            let menu = btnElement.nextElementSibling; // ID এর বদলে সরাসরি পাশের ইলিমেন্টকে ধরা হলো
+            let isActive = menu.dataset.active === "true";
+            
+            closeAllMenus(); 
+
+            if (!isActive) {
+                let rect = btnElement.getBoundingClientRect();
+                let spaceBelow = window.innerHeight - rect.bottom;
+                
+                if (spaceBelow < 130) {
+                    menu.classList.remove('top-full', 'mt-1', 'origin-top-right');
+                    menu.classList.add('bottom-full', 'mb-1', 'origin-bottom-right');
+                } else {
+                    menu.classList.remove('bottom-full', 'mb-1', 'origin-bottom-right');
+                    menu.classList.add('top-full', 'mt-1', 'origin-top-right');
+                }
+
+                menu.classList.remove('hidden');
+                setTimeout(() => {
+                    menu.classList.remove('scale-95', 'opacity-0');
+                    menu.classList.add('scale-100', 'opacity-100');
+                }, 10);
+                menu.dataset.active = "true";
+            }
+        }
+
+        function closeAllMenus() {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.dataset.active === "true") {
+                    menu.classList.remove('scale-100', 'opacity-100');
+                    menu.classList.add('scale-95', 'opacity-0');
+                    menu.dataset.active = "false";
+                    setTimeout(() => menu.classList.add('hidden'), 200); 
+                }
+            });
+        }
+
+        document.addEventListener('click', () => {
+            closeAllMenus();
+        });
 
         // 7. Universal Cloud Wake-up System
         let lastAwakeTime = 0; 
