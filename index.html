@@ -56,6 +56,23 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .scrollable-content::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        /* Circular Progress */
+        .circular-progress {
+            background: conic-gradient(#3b82f6 var(--progress), #1e293b 0deg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .circular-progress::before {
+            content: "";
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-color: #0f172a;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body class="bg-slate-900">
@@ -112,12 +129,80 @@
             <main class="flex-1 overflow-y-auto scrollable-content pt-20 pb-24 px-4">
                 
                 <!-- HOME TAB -->
-                <div id="homeTab" class="hidden fade-in flex flex-col items-center justify-center h-full pt-10">
-                    <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-lg border border-slate-700">
-                        <i class="fa-solid fa-house text-4xl text-slate-500"></i>
+                <div id="homeTab" class="hidden fade-in pb-10">
+                    <!-- Storage Overview -->
+                    <div class="bg-slate-800 p-5 rounded-2xl border border-slate-700 mb-6 flex justify-between items-center shadow-md">
+                        <div>
+                            <h2 class="text-lg font-bold text-white mb-2">Storage Overview</h2>
+                            <div class="flex items-center gap-2 text-sm text-slate-300 mb-1">
+                                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                                <span id="usedStorageText">0.00 MB</span> <span class="text-slate-500">| Total: 25.00 GB</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-slate-400">
+                                <div class="w-2 h-2 rounded-full bg-slate-500"></div>
+                                <span id="remainingStorageText">Remaining: 25.00 GB</span>
+                            </div>
+                        </div>
+                        <div class="relative w-20 h-20 circular-progress shadow-inner" id="storageProgress" style="--progress: 0deg;">
+                            <span id="storagePercentage" class="relative z-10 text-xs font-bold text-white">0%</span>
+                        </div>
                     </div>
-                    <h2 class="text-2xl font-bold text-slate-300">Home Dashboard</h2>
-                    <p class="text-slate-500 text-sm mt-2 text-center px-6">Exciting new features are coming soon to this space!</p>
+
+                    <!-- Categories Grid -->
+                    <div class="grid grid-cols-3 gap-3 mb-6">
+                        <!-- Images -->
+                        <div onclick="openCategory('image')" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 active:bg-slate-700 transition cursor-pointer">
+                            <p id="imgSize" class="text-right text-[10px] text-red-400 font-bold mb-1">0 B</p>
+                            <div class="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center text-red-500 mb-2">
+                                <i class="fa-solid fa-image text-lg"></i>
+                            </div>
+                            <p class="font-bold text-white text-sm">Images</p>
+                            <p id="imgCount" class="text-xs text-slate-500">000</p>
+                        </div>
+                        <!-- Videos -->
+                        <div onclick="openCategory('video')" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 active:bg-slate-700 transition cursor-pointer">
+                            <p id="vidSize" class="text-right text-[10px] text-blue-400 font-bold mb-1">0 B</p>
+                            <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center text-blue-500 mb-2">
+                                <i class="fa-solid fa-play text-lg"></i>
+                            </div>
+                            <p class="font-bold text-white text-sm">Videos</p>
+                            <p id="vidCount" class="text-xs text-slate-500">000</p>
+                        </div>
+                        <!-- Documents -->
+                        <div onclick="openCategory('document')" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 active:bg-slate-700 transition cursor-pointer">
+                            <p id="docSize" class="text-right text-[10px] text-teal-400 font-bold mb-1">0 B</p>
+                            <div class="w-10 h-10 bg-teal-500/20 rounded-xl flex items-center justify-center text-teal-500 mb-2">
+                                <i class="fa-solid fa-file-lines text-lg"></i>
+                            </div>
+                            <p class="font-bold text-white text-sm">Documents</p>
+                            <p id="docCount" class="text-xs text-slate-500">000</p>
+                        </div>
+                        <!-- Audio -->
+                        <div onclick="openCategory('audio')" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 active:bg-slate-700 transition cursor-pointer">
+                            <p id="audSize" class="text-right text-[10px] text-purple-400 font-bold mb-1">0 B</p>
+                            <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-500 mb-2">
+                                <i class="fa-solid fa-music text-lg"></i>
+                            </div>
+                            <p class="font-bold text-white text-sm">Audio</p>
+                            <p id="audCount" class="text-xs text-slate-500">000</p>
+                        </div>
+                        <!-- Others/Contacts -->
+                        <div onclick="openCategory('other')" class="bg-slate-800 p-3 rounded-2xl border border-slate-700 active:bg-slate-700 transition cursor-pointer">
+                            <p id="otherSize" class="text-right text-[10px] text-green-400 font-bold mb-1">0 B</p>
+                            <div class="w-10 h-10 bg-green-500/20 rounded-xl flex items-center justify-center text-green-500 mb-2">
+                                <i class="fa-solid fa-address-book text-lg"></i>
+                            </div>
+                            <p class="font-bold text-white text-sm">Others</p>
+                            <p id="otherCount" class="text-xs text-slate-500">000</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Files -->
+                    <div class="flex justify-between items-end mb-4 px-1">
+                        <h2 class="text-xl font-bold text-white">Recent Files</h2>
+                        <button onclick="showTab('files')" class="text-sm text-blue-400 font-semibold active:text-blue-300">See All</button>
+                    </div>
+                    <div id="recentFileListHome" class="flex flex-col gap-3"></div>
                 </div>
 
                 <!-- FILES TAB -->
@@ -149,7 +234,19 @@
                     <div id="uploadListContainer" class="w-full max-w-md mt-6 flex flex-col gap-3 px-2 pb-10"></div>
                 </div>
 
-                <!-- PROFILE TAB -->
+                <!-- CATEGORY TAB (Dynamic) -->
+                <div id="categoryTab" class="hidden fade-in">
+                    <div class="flex items-center gap-3 mb-6 px-1">
+                        <button onclick="showTab('home')" class="w-10 h-10 bg-slate-800 border border-slate-700 rounded-full flex items-center justify-center text-slate-300 active:bg-slate-700">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        <div>
+                            <h2 id="categoryTitle" class="text-xl font-bold text-white capitalize">Category Name</h2>
+                            <p id="categorySubtitle" class="text-xs text-slate-400">0 Items</p>
+                        </div>
+                    </div>
+                    <div id="categoryFileList" class="flex flex-col gap-3 pb-10"></div>
+                </div>
                 <div id="profileTab" class="hidden fade-in">
                     <h2 class="text-xl font-bold text-white mb-6 px-1">Account</h2>
                     
@@ -252,9 +349,13 @@
         function logout() { auth.signOut(); }
 
         // 4. UI Navigation
+        const TOTAL_STORAGE_LIMIT = 25 * 1024 * 1024 * 1024; // 25 GB in Bytes
+        let allUserFilesGlobal = []; // স্টোরেজ ক্যালকুলেশন ও ফিল্টারের জন্য
+
         function showTab(tab) {
-            ['home', 'files', 'upload', 'profile'].forEach(id => {
-                document.getElementById(id + 'Tab').classList.add('hidden');
+            ['home', 'files', 'upload', 'profile', 'category'].forEach(id => {
+                let el = document.getElementById(id + 'Tab');
+                if(el) el.classList.add('hidden');
             });
             
             document.getElementById(tab + 'Tab').classList.remove('hidden');
@@ -442,58 +543,137 @@
             }
         }
 
-        // 6. Realtime Database Fetch
-        function loadFilesRealtime() {
-            let fileList = document.getElementById('fileList');
-            let countBadge = document.getElementById('fileCountBadge');
+        // 6. Realtime Database Fetch & Data Processing
+        function getFileType(fileName) {
+            let ext = fileName.split('.').pop().toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic'].includes(ext)) return 'image';
+            if (['mp4', 'mkv', 'avi', 'mov'].includes(ext)) return 'video';
+            if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+            if (['pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx'].includes(ext)) return 'document';
+            return 'other'; // Contacts, apks, zips etc.
+        }
 
-            db.ref('users/' + currentUser.uid + '/files').on('value', (snapshot) => {
-                fileList.innerHTML = '';
-                
-                if (!snapshot.exists()) {
-                    countBadge.innerText = "0 Items";
-                    fileList.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-10 opacity-50">
-                            <i class="fa-solid fa-folder-open text-5xl text-slate-500 mb-4"></i>
-                            <p class="text-slate-400 text-sm">No files uploaded yet.</p>
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024, sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function generateFileCard(f) {
+            let type = getFileType(f.file_name);
+            let iconClass = "fa-file"; let colorClass = "text-blue-500 bg-blue-500/10";
+            
+            if(type === 'image') { iconClass = "fa-image"; colorClass = "text-red-500 bg-red-500/10"; }
+            else if(type === 'video') { iconClass = "fa-play"; colorClass = "text-blue-500 bg-blue-500/10"; }
+            else if(type === 'audio') { iconClass = "fa-music"; colorClass = "text-purple-500 bg-purple-500/10"; }
+            else if(type === 'document') { iconClass = "fa-file-lines"; colorClass = "text-teal-500 bg-teal-500/10"; }
+            else { iconClass = "fa-file-zipper"; colorClass = "text-green-500 bg-green-500/10"; }
+
+            return `
+                <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex justify-between items-center shadow-sm">
+                    <div class="flex items-center overflow-hidden flex-1 mr-3">
+                        <div class="w-12 h-12 ${colorClass} rounded-xl flex items-center justify-center mr-3 flex-shrink-0">
+                            <i class="fa-solid ${iconClass} text-xl"></i>
                         </div>
-                    `;
-                    return;
+                        <div class="overflow-hidden">
+                            <p class="font-semibold text-white text-sm truncate w-full selectable" title="${f.file_name}">${f.file_name}</p>
+                            <p class="text-xs text-slate-400 mt-0.5">${formatBytes(f.file_size)}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button onclick="safeDownload(this, '${f.message_id}')" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 active:bg-slate-600 transition">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </button>
+                        <button onclick="deleteFile('${f.key}', ${f.message_id})" class="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 transition">
+                            <i class="fa-solid fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadFilesRealtime() {
+            db.ref('users/' + currentUser.uid + '/files').on('value', (snapshot) => {
+                allUserFilesGlobal = [];
+                let stats = {
+                    totalSize: 0,
+                    categories: {
+                        image: { count: 0, size: 0 },
+                        video: { count: 0, size: 0 },
+                        audio: { count: 0, size: 0 },
+                        document: { count: 0, size: 0 },
+                        other: { count: 0, size: 0 }
+                    }
+                };
+
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => { 
+                        let file = {key: child.key, ...child.val()};
+                        allUserFilesGlobal.push(file); 
+                        
+                        let type = getFileType(file.file_name);
+                        stats.totalSize += file.file_size;
+                        stats.categories[type].count++;
+                        stats.categories[type].size += file.file_size;
+                    });
                 }
                 
-                let data = [];
-                snapshot.forEach(child => { data.push({key: child.key, ...child.val()}); });
-                data.sort((a, b) => b.timestamp - a.timestamp);
-                
-                countBadge.innerText = `${data.length} Items`;
+                allUserFilesGlobal.sort((a, b) => b.timestamp - a.timestamp);
 
-                data.forEach(f => {
-                    let sizeMB = (f.file_size / (1024 * 1024)).toFixed(2);
-                    
-                    fileList.innerHTML += `
-                        <div class="bg-slate-800 p-3 rounded-2xl border border-slate-700 flex justify-between items-center shadow-sm">
-                            <div class="flex items-center overflow-hidden flex-1 mr-3">
-                                <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-500 mr-3 flex-shrink-0">
-                                    <i class="fa-solid fa-file text-xl"></i>
-                                </div>
-                                <div class="overflow-hidden">
-                                    <p class="font-semibold text-white text-sm truncate w-full selectable" title="${f.file_name}">${f.file_name}</p>
-                                    <p class="text-xs text-slate-400 mt-0.5">${sizeMB} MB</p>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center gap-1 flex-shrink-0">
-                                <button onclick="safeDownload(this, '${f.message_id}')" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-300 hover:text-white bg-slate-700 hover:bg-slate-600 active:bg-slate-600 transition" title="Download">
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </button>
-                                <button onclick="deleteFile('${f.key}', ${f.message_id})" class="w-10 h-10 rounded-full flex items-center justify-center text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 transition" title="Delete">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                // Update Storage Stats
+                document.getElementById('usedStorageText').innerText = formatBytes(stats.totalSize);
+                document.getElementById('remainingStorageText').innerText = `Remaining: ${formatBytes(TOTAL_STORAGE_LIMIT - stats.totalSize)}`;
+                
+                let percent = ((stats.totalSize / TOTAL_STORAGE_LIMIT) * 100).toFixed(2);
+                document.getElementById('storagePercentage').innerText = `${percent}%`;
+                document.getElementById('storageProgress').style.setProperty('--progress', `${percent * 3.6}deg`);
+
+                // Update Category Cards
+                ['image', 'video', 'document', 'audio', 'other'].forEach(cat => {
+                    let shortCat = cat === 'image' ? 'img' : cat === 'video' ? 'vid' : cat === 'document' ? 'doc' : cat === 'audio' ? 'aud' : 'other';
+                    document.getElementById(`${shortCat}Size`).innerText = formatBytes(stats.categories[cat].size);
+                    document.getElementById(`${shortCat}Count`).innerText = String(stats.categories[cat].count).padStart(3, '0');
                 });
+
+                // Render Recent Files (Home Tab) - Max 10
+                let recentContainer = document.getElementById('recentFileListHome');
+                recentContainer.innerHTML = '';
+                let recentFiles = allUserFilesGlobal.slice(0, 10);
+                if(recentFiles.length === 0) recentContainer.innerHTML = `<p class="text-center text-slate-500 py-4 text-sm">No recent files.</p>`;
+                else recentFiles.forEach(f => recentContainer.innerHTML += generateFileCard(f));
+
+                // Render All Files (Files Tab)
+                let mainList = document.getElementById('fileList');
+                document.getElementById('fileCountBadge').innerText = `${allUserFilesGlobal.length} Items`;
+                mainList.innerHTML = '';
+                if(allUserFilesGlobal.length === 0) {
+                    mainList.innerHTML = `<div class="flex flex-col items-center justify-center py-10 opacity-50">
+                        <i class="fa-solid fa-folder-open text-5xl text-slate-500 mb-4"></i>
+                        <p class="text-slate-400 text-sm">No files uploaded yet.</p>
+                    </div>`;
+                } else {
+                    allUserFilesGlobal.forEach(f => mainList.innerHTML += generateFileCard(f));
+                }
             });
+        }
+
+        // Open Category Logic
+        function openCategory(type) {
+            showTab('category');
+            document.getElementById('categoryTitle').innerText = type + "s";
+            
+            let filteredFiles = allUserFilesGlobal.filter(f => getFileType(f.file_name) === type);
+            document.getElementById('categorySubtitle').innerText = `${filteredFiles.length} Items`;
+            
+            let catList = document.getElementById('categoryFileList');
+            catList.innerHTML = '';
+            
+            if(filteredFiles.length === 0) {
+                catList.innerHTML = `<p class="text-center text-slate-500 py-10">No ${type}s found.</p>`;
+            } else {
+                filteredFiles.forEach(f => catList.innerHTML += generateFileCard(f));
+            }
         }
 
         // 7. Universal Cloud Wake-up System
